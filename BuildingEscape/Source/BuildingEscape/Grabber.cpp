@@ -12,8 +12,6 @@ UGrabber::UGrabber()
 	// off to improve performance if you don't need them.
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -21,10 +19,14 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting for duty!"));
-	// ...
+	FindPhysicsHandleComponent();
+	SetupInputComponent();
+}
 
-	/// Look for attached Physics Handle
+/// Look for attached Physics Handle
+void UGrabber::FindPhysicsHandleComponent()
+{
+	
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	if (PhysicsHandle)
 	{
@@ -34,7 +36,10 @@ void UGrabber::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Physics Handle not found for: %s"), *GetOwner()->GetName());
 	}
+}
 
+void UGrabber::SetupInputComponent()
+{
 	/// Look for attached InputComponent (only appears at run time)
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent)
@@ -50,22 +55,38 @@ void UGrabber::BeginPlay()
 	}
 }
 
+
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"));
+
+	///LINE TRACE and reach any actors with phyics body collision channel set
+	GetFirstPhysicsBodyInReach();
+
+	///If we hit something then attach a physics hangle
+	//TODO attach physics handle
 }
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab released"));
+	//TODO release physics handle
 }
+
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	/// get player view point every frame
+	//If the physics handle is attached
+	  //move the object that we are holding
+
+}
+
+const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
+{
+	/// get player view point this tick
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
@@ -106,6 +127,5 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (ActorHit) {
 		UE_LOG(LogTemp, Warning, TEXT("Object hit: %s"), *(ActorHit->GetName()));
 	}
-	
+	return FHitResult();
 }
-
